@@ -185,7 +185,7 @@ def mpi_root(mpi_comm):
         # NOTE: This will be slow!  Since we have to (a) reach out to that
         # specific node, and (b) wait for that node to be ready to receive.
         mpi_comm.send(
-            obj=None,
+            obj=0,
             dest=i,
             tag=0,
         )
@@ -244,17 +244,42 @@ def mpi_nonroot(mpi_comm):
     )
     mpi_comm.gather(response)
 
-    # Receive a unidirectional message from the controller.
-    message = mpi_comm.recv(
-        source=0,
-        tag=0,
-    ) # type: None
-    if message is not None:
-        print('ERROR in MPI rank {}: Received a non-None message!'
-            .format(
-                mpi_rank,
+    # Receive a unidirectional message (an `int`) from the controller.
+    # Every time we get a non-zero integer, we return `floor(int/2)`.
+    # When we get a zero, we stop.
+
+    # Move message-receiving into a helper.
+    def get_message(mpi_comm):
+        # type: (MPIComm) -> Union[int, None]
+        message = mpi_comm.recv(
+            source=0,
+            tag=0,
+        ) # type: int
+        if type(message) is not int:
+            print('ERROR in MPI rank {}: Received a non-integer message!'
+                .format(
+                    mpi_rank,
+                )
             )
+            return None
+        else:
+            return message
+
+    # Start looping!
+    message = get_message(mpi_comm)
+    while (message is not None) and (message != 0):
+        # Divide the number by 2, and send it back
+        mpi_comm.send(
+            obj=int(message/2),
+            dest=0,
+            tag=0,
         )
+
+        # Get a new message
+        message = get_message(mpi_comm)
+
+    # Did we get an error?
+    if message is None:
         return 1
 
     # Before we finish, do an MPI synchronization barrier.
