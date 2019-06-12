@@ -179,6 +179,17 @@ def mpi_root(mpi_comm):
             )
         )
 
+        # Send the worker a unidirectional MPI message, signifying
+        # "You can exit now!".  But really, this is just showing off MPI
+        # unidirectional messaging.
+        # NOTE: This will be slow!  Since we have to (a) reach out to that
+        # specific node, and (b) wait for that node to be ready to receive.
+        mpi_comm.send(
+            obj=None,
+            dest=i,
+            tag=0,
+        )
+
     # Before we finish, do an MPI synchronization barrier.
     # This the only proper way of doing synrhconization with MPI.
     # Do we need it here?  Nope!  We're just showing it off.
@@ -232,6 +243,19 @@ def mpi_nonroot(mpi_comm):
         response_number,
     )
     mpi_comm.gather(response)
+
+    # Receive a unidirectional message from the controller.
+    message = mpi_comm.recv(
+        source=0,
+        tag=0,
+    ) # type: None
+    if message is not None:
+        print('ERROR in MPI rank {}: Received a non-None message!'
+            .format(
+                mpi_rank,
+            )
+        )
+        return 1
 
     # Before we finish, do an MPI synchronization barrier.
     # This the only proper way of doing synrhconization with MPI.
