@@ -179,6 +179,11 @@ def mpi_root(mpi_comm):
             )
         )
 
+    # Before we finish, do an MPI synchronization barrier.
+    # This the only proper way of doing synrhconization with MPI.
+    # Do we need it here?  Nope!  We're just showing it off.
+    mpi_comm.barrier()
+
     # We're all done!
     return 0
 
@@ -227,6 +232,11 @@ def mpi_nonroot(mpi_comm):
         response_number,
     )
     mpi_comm.gather(response)
+
+    # Before we finish, do an MPI synchronization barrier.
+    # This the only proper way of doing synrhconization with MPI.
+    # Do we need it here?  Nope!  We're just showing it off.
+    mpi_comm.barrier()
 
     # That's it!
     return 0
