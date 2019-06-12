@@ -1,0 +1,9 @@
+# SLURM stuff
+slurm-*
+
+# Editor stuff
+*~
+.*.swp
+
+# MyPy stuff
+.mypy_cache
