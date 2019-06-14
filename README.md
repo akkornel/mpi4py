@@ -52,6 +52,14 @@ all hosts, without any changes:
 
 [![asciicast](https://asciinema.org/a/K05Tqig8AcbFv68O1qlSDFwbd.svg)](https://asciinema.org/a/K05Tqig8AcbFv68O1qlSDFwbd)
 
+If you have access to a compute environment running SLURM, you can let SLURM do
+all of the work for you:
+
+[![asciicast](https://asciinema.org/a/XyPGpX7gTG5ZrEWWQ4KS3OzEl.svg)](https://asciinema.org/a/XyPGpX7gTG5ZrEWWQ4KS3OzEl)
+
+Read on for information on the technologies that make all this work, and how to
+try it for yourself!
+
 # Behind the Scenes
 
 Behind the above example, there are many moving pieces.  Here is an explanation
@@ -262,6 +270,132 @@ you ask for more slots that what is available.
 
 And that's it!  You should now be up and running with MPI across multiple
 hosts.
+
+## SLURM
+
+Many compute environments, especially in HPC, use the
+[SLURM](https://slurm.schedmd.com) job scheduler.  SLURM is able to communicate
+node and slot information to programs that use MPI, and in some MPI
+implementations SLURM is able to do all of the communications setup on its own.
+
+With SLURM, there are two ways of launching our MPI job.  The first is to use
+`srun`, launching the job in a synchronous fasion (that was shown in the
+example at the top of this page).  The second is to use `sbatch`, providing a
+batch script that will be run asynchronously.
+
+Regardless of the method of execution (that is, regardless of the SLURM command
+we run), we will need to tell SLURM what resources we will require:
+
+* **Time**.  Our job takes less than five minutes to complete.
+
+* **Number of Tasks**.  This is the equivalent to the `-n` option for `mpirun`.
+  We need to specify how many MPI tasks to run.
+
+* **CPUs/cores**.  Our code is single-threaded, so this is "1 per task".
+
+* **Memory**.  We are running a single Python interpreter in each task, but
+  let's overestimate and say "512 MB per core".  Note that SLURM specifies
+  memory either per core or per node, not per task.
+
+Note that in our request we never specified how many machines to run on.  As
+long as all machines have access to the same storage (which is normal in a
+compute environment), we do not care exactly where our program runs.  All of
+our tasks may run on a single machine, or they may be spread out across
+multiple machines.
+
+Note also that SLURM has support for many different MPI implementations, but in
+some cases, special care may need to be taken.  For OpenMPI, nothing special is
+required: SLURM supports OpenMPI natively, and OpenMPI supports SLURM by
+default.  More information on other MPI implementations is available [from
+SLURM](https://slurm.schedmd.com/mpi_guide.html).  To see which MPIs are
+supported by your SLURM environment, run the command `srun --mpi list`.  You
+can check the default by looking at the environment's `slurm.conf` file (which
+is normally located in `/etc` on each machine).  The setting is named
+"MpiDefault".
+
+In the examples which follow, we will always be requesting at least two nodes.
+
+## Synchronous SLURM with salloc
+
+Running "synchronously" means you submit the work to SLURM, and you wait for
+results to come back.  Any messages output by your code (for example, via
+standard output or standard error) will be displayed in the terminal.
+
+To run synchronously, we use the `srun` command, like so:
+
+```
+akkornel@rice15:~/mpi4py$ module load openmpi/3.0.0
+akkornel@rice15:~/mpi4py$ srun --time 0:05:00 --ntasks 10 --cpus-per-task 1 --mem-per-cpu 512M --nodes 2-10 python3 mpi4.py
+Controller @ MPI Rank   0:  Input 3609809428
+   Worker at MPI Rank   1: Output 3609809429 is OK (from wheat09)
+   Worker at MPI Rank   2: Output 3609809430 is OK (from wheat10)
+   Worker at MPI Rank   3: Output 3609809431 is OK (from wheat11)
+   Worker at MPI Rank   4: Output 3609809432 is OK (from wheat12)
+   Worker at MPI Rank   5: Output 3609809433 is OK (from wheat13)
+   Worker at MPI Rank   6: Output 3609809434 is OK (from wheat14)
+   Worker at MPI Rank   7: Output 3609809435 is OK (from wheat15)
+   Worker at MPI Rank   8: Output 3609809436 is OK (from wheat16)
+   Worker at MPI Rank   9: Output 3609809437 is OK (from wheat17)
+```
+
+In the above example, OpenMPI is provided via an [Lmod
+module](https://lmod.readthedocs.io/en/latest/), instead of a system package.
+We have already built mpi4py using that version of OpenMPI.  So, before running
+our code, we first load the same OpenMPI module used to build mpi4py.
+
+Once that is complete, we use the `srun` command to run our job.  SLURM finds
+enough nodes to run our job, runs it, and prints the contents of standard
+output and standard error.
+
+Note that the above example assumes OpenMPI is configured as SLURM's default
+MPI.   If not , you can provide `--mpi=openmpi` to the `srun` command, to force
+it to use native OpenMPI.
+
+## SLURM batch jobs with sbatch
+
+When running as a batch job, most of the resource options should be specified
+in the script that is provided to `sbatch`.  That script should include (via
+`##SBATCH` special comments) all of the resource-setting options that you
+previously included in the `srun` command line, *except* for `--ntasks` (and
+possibly also `--time`).
+
+Since the code supports any number of workers (as is typical for an MPI
+program), you should provide `--ntasks` on the `sbatch` command-line, so that
+you can adjust it to fit your current needs.
+
+This example uses the sbatch script included in this repository.  Ten workers
+are requested.
+
+```
+akkornel@rice15:~/mpi4py$ sbatch --ntasks 10 mpi4.py.sbatch
+Submitted batch job 1491736
+akkornel@rice15:~/mpi4py$ sleep 10
+akkornel@rice15:~/mpi4py$ squeue -j 1491736
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+akkornel@rice15:~/mpi4py$ cat slurm-1491736.out
+Controller @ MPI Rank   0:  Input 3761677288
+   Worker at MPI Rank   1: Output 3761677289 is OK (from wheat08)
+   Worker at MPI Rank   2: Output 3761677290 is OK (from wheat08)
+   Worker at MPI Rank   3: Output 3761677291 is OK (from wheat08)
+   Worker at MPI Rank   4: Output 3761677292 is OK (from wheat08)
+   Worker at MPI Rank   5: Output 3761677293 is OK (from wheat08)
+   Worker at MPI Rank   6: Output 3761677294 is OK (from wheat08)
+   Worker at MPI Rank   7: Output 3761677295 is OK (from wheat08)
+   Worker at MPI Rank   8: Output 3761677296 is OK (from wheat08)
+   Worker at MPI Rank   9: Output 3761677297 is OK (from wheat08)
+```
+
+When SLURM launches the job, the batch script is executed on one of the nodes
+allocated to the job.  The batch script is responsible for setting up the
+environment (in this case, loading the OpenMPI module), and then executing
+`srun`.  Note that in the batch script, `srun` does not have any command-line
+options (except for `--mpi`); `srun` is able to recognize that it is running
+inside a batch job, and will automatically scale itself to use all of the
+resources available.
+
+That's it!  Without having to change any Python code, your work is now being
+run via a job scheduler, with all of the resource scheduling and IPC facilities
+manged for you.
 
 # Copyright & License
 
