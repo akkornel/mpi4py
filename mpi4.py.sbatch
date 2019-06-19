@@ -38,7 +38,7 @@ PYTHON_PROGRAM=${PYTHON_PROGRAM:-python3}
 
 # What MPI runner do we use?
 # This is important, because it sets up all of the inter-process communications,
-# on both this node, and all of the other nodes running this job.
+# on both this node and all of the other nodes running this job.
 # We prefer letting SLURM handle MPI setup, via `srun --mpi=openmpi`.
 # But, you can override it by setting the RUN_COMMAND environment variable.
 # NOTE that SLURM's slurm.conf specifies a default MPI to use (in case `--mpi`

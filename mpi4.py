@@ -11,7 +11,7 @@ It was written by A. Karl Kornel <akkornel@stanford.edu>
 
 You should run this, not with `python`, but with `mpirun`.
 Or, you can run it in a SLURM job, using `srun` (or `mpirun`).
-Read the README.rst for more details!
+Read the README.md for more details!
 """
 
 # Import MPI at the start, as we'll use it everywhere.
@@ -64,8 +64,8 @@ def main():
     else:
         return mpi_nonroot(mpi_comm)
 
-# This program has two parts: The root part and the non-root part.
-# The root part is executed by rank 0; the non-root part by everyone else.
+# This program has two parts: The controller and the worker part.
+# The controller is executed by rank 0; the workers by everyone else.
 # SOME TERMINOLOGY:
 # MPI World: All of the MPI processes, spawned by `mpirun` or SLURM/srun.
 # MPI Size: The number of MPI slots (or SLURM tasks).
@@ -95,6 +95,10 @@ def mpi_root(mpi_comm):
     Once all results are gathered, output each result (the gathered array is
     sorted by MPI rank).  Verify that each int returned is correct, by doing
     the math (`returned int == random_number + MPI_rank`) locally.
+
+    At the end, send each worker (via a unicast message) an `int` zero.  Then,
+    wait for everyone to be at the same point in code (via a battier).  Then
+    we're done!
     """
 
     # We import `random` here because we only use it here.
@@ -104,7 +108,7 @@ def mpi_root(mpi_comm):
     # NOTE: The lower-case methods (like `bcast()`) take Python object, and do
     # the serialization for us (yay!). 
     # `bast()` is blocking, in the sense that it does not return until
-    # the data has been sent, but it is _not_ synchronizing.
+    # the data have been sent, but it is _not_ synchronizing.
     # There's also no guarantee as to _how_ the data were conveyed.
     # NOTE: In Python 3.6+, we should use `secret` instead of `random`.
     random_number = random.randrange(2**32)
@@ -209,6 +213,12 @@ def mpi_nonroot(mpi_comm):
     Return, via the gather process, a tuple with two items:
     * The MPI "CPU Identifier" (normally a hostname)
     * The calculated number, above.
+
+    Then, enter a loop: We receive a number (an `int`) from the controller.  If
+    the number is zero, we exit the loop.  Otherwise, we divide the number by
+    two, convert the result to an int, and send the result to the controller.
+
+    Finally, after the loop is over, we synchronize via an MPI barrier.
     """
 
     # Get our MPI rank.
