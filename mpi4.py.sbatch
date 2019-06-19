@@ -19,9 +19,9 @@
 ##SBATCH --nodes 2-
 
 # This batch script will run on one of the compute nodes.
-# You could actually do this interactively, if you ran `salloc` with all of the
-# SLURM options that are mentioned above (`salloc --time 0:05:00 … /bin/bash`).
-# The environment in which this batch script (or `salloc`) runs has all of the
+# You could actually do this interactively, if you ran `srun` with all of the
+# SLURM options that are mentioned above (`srun --time 0:05:00 … /bin/bash`).
+# The environment in which this batch script runs has all of the
 # information (via SLURM_* environment variables) to leverage resources on
 # all of the nodes.  It does this by calling either `srun` or `mpirun`.
 
