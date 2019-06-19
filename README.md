@@ -27,7 +27,7 @@ mpirun -n 20 python3 mpi4.py
 ```
 
 See it in action:
-[![asciicast](https://asciinema.org/a/gd64eQj99Tnvew9q27Ia9ciXe.svg)](https://asciinema.org/a/gd64eQj99Tnvew9q27Ia9ciXe)
+[![asciicast](https://asciinema.org/a/gd64eQj99Tnvew9q27Ia9ciXe.svg)](https://asciinema.org/a/gd64eQj99Tnvew9q27Ia9ciXe?autoplay=1)
 
 The Python code is simple: It has one 'controller', and one or more 'workers':
 
@@ -50,12 +50,12 @@ The above example showed 20 copies of mpi4.py, all running on the local system.
 But, if you have two identical machines, you can spread the workers out across
 all hosts, without any changes:
 
-[![asciicast](https://asciinema.org/a/K05Tqig8AcbFv68O1qlSDFwbd.svg)](https://asciinema.org/a/K05Tqig8AcbFv68O1qlSDFwbd)
+[![asciicast](https://asciinema.org/a/K05Tqig8AcbFv68O1qlSDFwbd.svg)](https://asciinema.org/a/K05Tqig8AcbFv68O1qlSDFwbd?autoplay=1)
 
 If you have access to a compute environment running SLURM, you can let SLURM do
 all of the work for you:
 
-[![asciicast](https://asciinema.org/a/XyPGpX7gTG5ZrEWWQ4KS3OzEl.svg)](https://asciinema.org/a/XyPGpX7gTG5ZrEWWQ4KS3OzEl)
+[![asciicast](https://asciinema.org/a/XyPGpX7gTG5ZrEWWQ4KS3OzEl.svg)](https://asciinema.org/a/XyPGpX7gTG5ZrEWWQ4KS3OzEl?autoplay=1)
 
 Read on for information on the technologies that make all this work, and how to
 try it for yourself!
