@@ -401,6 +401,63 @@ That's it!  Without having to change any Python code, your work is now being
 run via a job scheduler, with all of the resource scheduling and IPC facilities
 manged for you.
 
+# Where to go next?
+
+This was only a dip of the toe into the world of MPI.  To continue on, you
+should first access the [mpi4py
+documentation](https://mpi4py.readthedocs.io/en/stable/).  As most MPI
+publications provide their code in C, the mpi4py docs will guide you on how to
+convert that C code into Python calls.  You can also use the built-in help
+system, like so:
+
+```
+akkornel@rice13:~$ python3.5
+Python 3.5.2 (default, Nov 12 2018, 13:43:14)
+[GCC 5.4.0 20160609] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from mpi4py import MPI
+>>> mpi_comm = MPI.COMM_WORLD
+>>> help(mpi_comm.Get_rank)
+Help on built-in function Get_rank:
+
+Get_rank(...) method of mpi4py.MPI.Intracomm instance
+    Comm.Get_rank(self)
+
+    Return the rank of this process in a communicator
+```
+
+The mpi4py docs also has a tutorial, which you should read!
+
+Now that is done, the next thing to do is to think of a problem, and to try
+solving it using MPI!  Focus on a problem that can be parallelized easily.
+
+The Lawrence Livermore National Lab has a tutorial on MPI, featuring some
+exercises that you can try.  For example, try [going to the
+tutorial](https://computing.llnl.gov/tutorials/mpi/) and skipped ahead to the
+_Point to Point Communication Routines_ section, which guides you through one
+of the ways of calculating the digits of Pi.
+
+Other tutorials include Rajeev Thakur's [Introduction to
+MPI](https://courses.cs.washington.edu/courses/csep524/13wi/Thakur-MPI.pdf)
+slide deck, which has been condenced by Brad Chamberlain of the University of
+Washington (for a course there); and the [MPI for
+Dummies](https://htor.inf.ethz.ch/teaching/mpi_tutorials/ppopp13/2013-02-24-ppopp-mpi-basic.pdf)
+slide deck, created for the [PPoPP
+conference](https://conf.researchr.org/series/PPoPP).
+
+If you are interested in spreading your MPI code out across multiple machines,
+you might want to set up a SLURM environment.  First, get some shared storage
+by setting up an NFS server (in
+[Ubuntu](https://help.ubuntu.com/community/SettingUpNFSHowTo), or you could use
+[Amazon EFS](https://aws.amazon.com/efs/) or [Google Cloud
+Filestore](https://cloud.google.com/filestore/)).  Then, check out the [SLURM
+Quick Start](https://slurm.schedmd.com/quickstart_admin.html).  On RPM-based
+systems, the quick-start walks you through creating RPMs; on Debian-based
+systems, the packages are already available under the name "slurm-llnl".
+
+Once you are done with all that, start looking at nearby universities and
+research institutions.  They may have a job opening for you!
+
 # Copyright & License
 
 The contents of this repository are Copyright © 2019 the Board of Trustees of
