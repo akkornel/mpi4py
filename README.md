@@ -84,7 +84,7 @@ June 4, 2015.  MPI specification versions have an "MPI-" prefix to distinguish
 them from implementation versions.  Specifications are developed by the [MPI
 Forum](https://www.mpi-forum.org).
 
-MPI is interesting in that it only specifies an API.  It is up to other groups
+MPI is interesting in that it only specifies an API; it is up to other groups
 to provide the implementations of the API.  In fact, MPI does not specify
 things like encodings, or wire formats, or even transports.  The implementation
 has full reign to use (what it feels is) the most efficient encoding, and to
@@ -110,7 +110,7 @@ Linux distribution probably has it packaged already.
 
 **NOTE**: When running OpenMPI for the first time, you may get a warning which
 says "A high-performance Open MPI point-to-point messaging module was unable to
-find any relevant network interfaces'.  That is OpenMPI complaining that it is
+find any relevant network interfaces".  That is OpenMPI complaining that it is
 not able to find anything other than a basic Ethernet interface.
 
 To suppress the warning about no high-performance network interfaces, edit the
@@ -120,11 +120,11 @@ file at path `/etc/openmpi/openmpi-mca-params.conf`, and insert the line
 ## Python
 
 As this is a Python demonstration, you will need Python!  MPI has been around
-for a long time, and so many versions of Python are supported.  This code works
-with Python 2.7, and also Python 3.5 and later.
+for a long time, and so many versions of Python are supported.  The code in
+this repo works with Python 2.7, and also Python 3.5 and later.
 
 The Python code in this repository includes type annotations.  To run in Python
-2.7 only, you will need to install the
+2.7, you will need to install the
 [typing](https://pypi.org/project/typing/) package (it comes as part of the
 standard library in 3.5 and later).
 
@@ -166,6 +166,8 @@ OS, OpenMPI, and mpi4py configurations, on an x64 platform:
   Ubuntu-supplied version (1.10.2-8ubuntu1) was tested, but reliably crashed
   with a buffer overflow.
 
+  The above software was tested in the following Python versions:
+
   * Python 2.7 (2.7.12-1~16.04)
 
   * Python 3.5 (3.5.1-3)
@@ -180,6 +182,8 @@ OS, OpenMPI, and mpi4py configurations, on an x64 platform:
 
   mpi4py 2.0.0 (2.0.0-3) was used in all tests.
 
+  The above software was tested in the following Python versions:
+
   * Python 2.7 (2.7.15~rc1-1).
 
   * Python 3.6 (3.6.7-1~18.04).
@@ -188,7 +192,8 @@ OS, OpenMPI, and mpi4py configurations, on an x64 platform:
 
 You can run this demonstration code multiple ways.  This documentation explains
 how to run directly (with `mpirun`).  This works automatically on one machine,
-and can be configured to run on multiple machines.
+and can be configured to run on multiple machines.  Information is also
+provided for people with access to a SLURM environment.
 
 ## mpirun
 
@@ -225,10 +230,12 @@ came here!), there are some steps you'll need to take:
   across all machines.
 
 * There should be no firewall block: Each host needs to be able to communicate
-  with each other host, on any TCP or UDP port.
+  with each other host, on any TCP or UDP port.  You can limit the ports used,
+  but that is out of the scope of this quick-start.
 
 * SSH should be configured so that you can get an SSH prompt on each machine
-  without needing to enter a password or answer a prompt.
+  without needing to enter a password or answer a prompt.  In other words,
+  you'll need public-key auth configured.
 
 * The code should either live on shared storage, or should be identical on all
   nodes.
