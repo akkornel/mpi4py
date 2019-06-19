@@ -343,6 +343,10 @@ module](https://lmod.readthedocs.io/en/latest/), instead of a system package.
 We have already built mpi4py using that version of OpenMPI.  So, before running
 our code, we first load the same OpenMPI module used to build mpi4py.
 
+(We don't need to run `module load` on the remote system, because Lmod modules
+do their work by manipulating environment variables, which SLURM copies over to
+the compute nodes.)
+
 Once that is complete, we use the `srun` command to run our job.  SLURM finds
 enough nodes to run our job, runs it, and prints the contents of standard
 output and standard error.
